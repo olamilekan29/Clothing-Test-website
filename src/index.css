@@ -85,3 +85,79 @@ main { padding: 0 16px 40px; max-width: 1200px; margin: 0 auto; }
 .toolbar { display: flex; gap: 10px; padding: 0 16px 16px; max-width: 1200px; margin: 0 auto; }
 .toolbar input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; }
 .toolbar select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; }
+
+.co-title { margin-bottom: 20px; }
+.checkout-layout { display: grid; gap: 32px; grid-template-columns: 1fr; }
+@media (min-width: 850px) { .checkout-layout { grid-template-columns: 1.2fr 1fr; align-items: start; } }
+
+.co-form h3, .summary h3 { margin-bottom: 14px; }
+.field { display: block; margin-bottom: 14px; flex: 1; }
+.field span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.field input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: #fff; }
+.field input.invalid { border-color: #c0392b; }
+.err-text { color: #c0392b; font-size: 12px; }
+.row { display: flex; gap: 12px; }
+
+.summary { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 20px; }
+.summary ul { list-style: none; padding: 0; margin-bottom: 14px; }
+.summary li { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f3f3; }
+.summary li > div { flex: 1; }
+.summary img { width: 52px; height: 66px; object-fit: cover; border-radius: 6px; background: #f0ebe3; }
+.summary .t { font-size: 14px; font-weight: 500; }
+.summary .s { font-size: 12px; color: #888; }
+.summary .p { font-size: 14px; font-weight: 600; }
+.line { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+.line.total { font-size: 17px; font-weight: 700; border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px; }
+.hint { font-size: 12px; color: #888; margin-top: 8px; }
+
+.success { text-align: center; padding-top: 60px; }
+.success p { margin: 10px 0; color: #555; }
+.tick { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; background: #1e8e3e; color: #fff; font-size: 38px; display: grid; place-items: center; }
+.ref { font-family: monospace; font-size: 13px; }
+.link-btn { display: inline-block; width: auto; margin-top: 20px; padding: 14px 28px; text-decoration: none; }
+
+
+.quick-add {
+  width: 100%; margin-top: 10px; padding: 10px;
+  background: #fff; color: #111; border: 1px solid #111; border-radius: 8px;
+  font-size: 14px; cursor: pointer; transition: background .15s, color .15s;
+}
+.quick-add:hover:not(:disabled) { background: #111; color: #fff; }
+.quick-add:disabled { border-color: #ccc; color: #999; cursor: not-allowed; }
+
+.size-picker {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, .97); padding: 12px;
+  border-top: 1px solid #eee;
+}
+.size-picker-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.size-picker-head button { border: 0; background: none; cursor: pointer; font-size: 14px; }
+.size-picker-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.size-picker-options button {
+  min-width: 40px; padding: 8px 10px; border: 1px solid #ddd; background: #fff;
+  border-radius: 6px; cursor: pointer; font-size: 13px;
+}
+.size-picker-options button:hover { background: #111; color: #fff; border-color: #111; }
+
+
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  width: min(420px, calc(100% - 32px));
+  display: flex; align-items: center; gap: 12px;
+  background: #111; color: #fff; padding: 12px 14px; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25); z-index: 20;
+  animation: toast-in .25s ease-out;
+}
+.toast img { width: 44px; height: 56px; object-fit: cover; border-radius: 6px; background: #f0ebe3; }
+.toast-text { flex: 1; min-width: 0; }
+.toast-title { font-size: 14px; font-weight: 600; }
+.toast-sub { font-size: 12px; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toast-view {
+  background: #fff; color: #111; border: 0; border-radius: 8px;
+  padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

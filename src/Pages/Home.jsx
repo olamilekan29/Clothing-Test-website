@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES, getProducts } from "../api";
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../Components/ProductCard";
 
 export default function Home() {
   const [category, setCategory] = useState("all");

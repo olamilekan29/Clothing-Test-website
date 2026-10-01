@@ -1,8 +1,11 @@
 import { useCart } from "../CartContext";
+import { useNavigate } from "react-router-dom";
+import { formatNaira } from "../utils";
+
 
 export default function CartDrawer() {
   const { items, setQty, total, open, setOpen } = useCart();
-
+  const navigate = useNavigate();
   return (
     <>
       <div className={`overlay ${open ? "show" : ""}`} onClick={() => setOpen(false)} />
@@ -23,7 +26,7 @@ export default function CartDrawer() {
                   <div>
                     <p className="t">{i.title}</p>
                     <p className="s">Size: {i.size}</p>
-                    <p className="p">${i.price.toFixed(2)}</p>
+                    <p className="p">{formatNaira(i.price)}</p>
                     <div className="qty">
                       <button onClick={() => setQty(i.key, i.qty - 1)}>−</button>
                       <span>{i.qty}</span>
@@ -35,9 +38,17 @@ export default function CartDrawer() {
             </ul>
             <div className="drawer-foot">
               <p>
-                <span>Subtotal</span> <strong>${total.toFixed(2)}</strong>
+                <span>Subtotal</span> <strong>{formatNaira(total)}</strong>
               </p>
-              <button className="add-btn">Checkout</button>
+              <button
+                className="add-btn"
+                onClick={() => {
+                setOpen(false);
+                navigate("/checkout");
+  }}
+>
+  Checkout
+</button>
             </div>
           </>
         )}

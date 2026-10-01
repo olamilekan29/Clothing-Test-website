@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getProduct, getSizes } from "../api";
 import { useCart } from "../CartContext";
+import { formatNaira, saleNGN, listNGN } from "../utils";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ export default function ProductPage() {
   if (status === "loading") return <p className="msg">Loading...</p>;
   if (status === "error" || !product) return <p className="msg">Product not found.</p>;
 
-  const salePrice = product.price * (1 - product.discountPercentage / 100);
+  
   const sizes = getSizes(product);
 
   const handleAdd = () => {
@@ -68,9 +69,9 @@ export default function ProductPage() {
           <p className="brand">{product.brand}</p>
           <h2>{product.title}</h2>
           <p className="price big">
-            ${salePrice.toFixed(2)}
-            {product.discountPercentage > 0 && <s>${product.price.toFixed(2)}</s>}
-          </p>
+  {formatNaira(saleNGN(product))}
+  {listNGN(product) > saleNGN(product) && <s>{formatNaira(listNGN(product))}</s>}
+</p>
           <p className="desc">{product.description}</p>
 
           <p className="label">Size {needSize && <span className="err">Please select a size</span>}</p>
