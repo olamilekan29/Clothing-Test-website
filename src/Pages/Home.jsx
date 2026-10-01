@@ -101,17 +101,14 @@
 
 
 
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CATEGORIES, getProducts } from "../api";
 import ProductCard from "../Components/ProductCard";
 
-const TILES = [
-  { slug: "mens-shirts", label: "Men's Shirts" },
-  { slug: "womens-dresses", label: "Dresses" },
-  { slug: "womens-shoes", label: "Women's Shoes" },
-  { slug: "womens-bags", label: "Bags" },
-];
+// The first four categories show as tiles on the home page
+const TILES = CATEGORIES.slice(0, 4);
 
 export default function Home() {
   const [params, setParams] = useSearchParams();
@@ -237,7 +234,11 @@ export default function Home() {
         {status === "loading" && <p className="msg">Loading...</p>}
         {status === "error" && <p className="msg">Couldn't load products.</p>}
         {status === "ready" && visible.length === 0 && (
-          <p className="msg">No products match "{query}".</p>
+          <p className="msg">
+            {query
+              ? `No products match "${query}".`
+              : "No products in this category yet."}
+          </p>
         )}
         {status === "ready" && visible.length > 0 && (
           <div className="grid">

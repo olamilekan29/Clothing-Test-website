@@ -77,21 +77,72 @@
 // }
 
 
+// import { Link, Route, Routes } from "react-router-dom";
+// import Home from "./pages/Home";
+// import ProductPage from "./pages/ProductPage";
+// import Checkout from "./pages/Checkout";
+// import OrderSuccess from "./pages/OrderSuccess";
+// import Wishlist from "./pages/Wishlist";
+// import CartDrawer from "./Components/CartDrawer";
+// import Toast from "./Components/Toast";
+// import Footer from "./Components/Footer";
+// import { useCart } from "./CartContext";
+// import { useWishlist } from "./WishlistContext";
+
+// export default function App() {
+//   const { count, setOpen } = useCart();
+//   const { count: wishCount } = useWishlist();
+
+//   return (
+//     <div className="app">
+//       <header className="header">
+//         <Link to="/wishlist" className="wish-link">
+//           ♡ Wishlist{wishCount > 0 && <span className="count">{wishCount}</span>}
+//         </Link>
+//         <Link to="/"><h1>THREAD</h1></Link>
+//         <button className="cart-btn" onClick={() => setOpen(true)}>
+//           Cart{count > 0 && <span className="count">{count}</span>}
+//         </button>
+//       </header>
+
+//       <div className="app-body">
+//         <Routes>
+//           <Route path="/" element={<Home />} />
+//           <Route path="/product/:id" element={<ProductPage />} />
+//           <Route path="/wishlist" element={<Wishlist />} />
+//           <Route path="/checkout" element={<Checkout />} />
+//           <Route path="/order-success" element={<OrderSuccess />} />
+//         </Routes>
+//       </div>
+
+//       <Footer />
+//       <CartDrawer />
+//       <Toast />
+//     </div>
+//   );
+// }
+
+
 import { Link, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import ProductPage from "./pages/ProductPage";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import Wishlist from "./pages/Wishlist";
+import Login from "./pages/Login";
 import CartDrawer from "./Components/CartDrawer";
 import Toast from "./Components/Toast";
 import Footer from "./Components/Footer";
+import RequireAuth from "./Components/RequireAuth";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
+import { useAuth } from "./AuthContext";
+import Admin from "./pages/Admin";
 
 export default function App() {
   const { count, setOpen } = useCart();
   const { count: wishCount } = useWishlist();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <div className="app">
@@ -100,9 +151,20 @@ export default function App() {
           ♡ Wishlist{wishCount > 0 && <span className="count">{wishCount}</span>}
         </Link>
         <Link to="/"><h1>THREAD</h1></Link>
-        <button className="cart-btn" onClick={() => setOpen(true)}>
-          Cart{count > 0 && <span className="count">{count}</span>}
-        </button>
+
+        <div className="header-right">
+          {user ? (
+            <>
+              {isAdmin && <Link to="/admin" className="acct-btn">Admin</Link>}
+              <button className="acct-btn" onClick={signOut}>Sign out</button>
+            </>
+          ) : (
+            <Link to="/login" className="acct-btn">Sign in</Link>
+          )}
+          <button className="cart-btn" onClick={() => setOpen(true)}>
+            Cart{count > 0 && <span className="count">{count}</span>}
+          </button>
+        </div>
       </header>
 
       <div className="app-body">
@@ -110,7 +172,23 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+  path="/admin"
+  element={
+    <RequireAuth adminOnly>
+      <Admin />
+    </RequireAuth>
+  }
+/>
+          <Route
+            path="/checkout"
+            element={
+              <RequireAuth>
+                <Checkout />
+              </RequireAuth>
+            }
+          />
           <Route path="/order-success" element={<OrderSuccess />} />
         </Routes>
       </div>

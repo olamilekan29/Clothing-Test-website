@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PaystackPop from "@paystack/inline-js";
+import { supabase } from "../supabase";
+import { useAuth } from "../AuthContext";
 import { useCart } from "../CartContext";
 import { formatNaira, SHIPPING_FEE_NGN, FREE_SHIPPING_OVER_NGN } from "../utils";
 
 const PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-
-const EMPTY = { name: "", email: "", phone: "", address: "", city: "", state: "" };
 
 function validate(f) {
   const e = {};
@@ -19,11 +19,37 @@ function validate(f) {
   return e;
 }
 
+// Calls a server function and turns its error message into a normal Error.
+async function callFn(name, body) {
+  const { data, error } = await supabase.functions.invoke(name, { body });
+  if (error) {
+    let message = error.message;
+    try {
+      const detail = await error.context.json();
+      if (detail?.error) message = detail.error;
+    } catch {
+      /* keep the default message */
+    }
+    throw new Error(message);
+  }
+  return data;
+}
+
 export default function Checkout() {
   const { items, clear } = useCart();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState(EMPTY);
+
+  const [form, setForm] = useState({
+    name: profile?.full_name || "",
+    email: user?.email || "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+  });
   const [errors, setErrors] = useState({});
+  const [error, setError] = useState("");
   const [paying, setPaying] = useState(false);
 
   if (items.length === 0) {
@@ -44,34 +70,68 @@ export default function Checkout() {
     if (errors[field]) setErrors({ ...errors, [field]: undefined });
   };
 
-  const handlePay = (e) => {
+  const handlePay = async (e) => {
     e.preventDefault();
+    setError("");
+
     const found = validate(form);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
     if (!PUBLIC_KEY) {
-      alert("Missing VITE_PAYSTACK_PUBLIC_KEY in .env.local (restart the dev server after adding it).");
+      setError("Missing VITE_PAYSTACK_PUBLIC_KEY in .env.local (restart the dev server after adding it).");
       return;
     }
 
     setPaying(true);
-    const popup = new PaystackPop();
-    popup.newTransaction({
-      key: PUBLIC_KEY,
-      email: form.email,
-      amount: total * 100, // Paystack expects kobo
-      currency: "NGN",
-      metadata: { name: form.name, phone: form.phone, address: `${form.address}, ${form.city}, ${form.state}` },
-      onSuccess: (transaction) => {
-        navigate("/order-success", {
-          replace: true,
-          state: { reference: transaction.reference, email: form.email, total },
-        });
-        clear();
-      },
-      onCancel: () => setPaying(false),
-    });
+    try {
+      // 1. The server checks prices and stock, and saves the order as pending
+      const order = await callFn("create-order", {
+        items: items.map((i) => ({ product_id: i.id, size: i.size, quantity: i.qty })),
+        customer: form,
+      });
+
+      if (order.total !== total) {
+        throw new Error(
+          `Some prices have changed. Your correct total is ${formatNaira(order.total)}. Please remove and re-add the items in your cart.`
+        );
+      }
+
+      // 2. Customer pays
+      const popup = new PaystackPop();
+      popup.newTransaction({
+        key: PUBLIC_KEY,
+        email: order.email,
+        amount: order.total * 100, // Paystack expects kobo
+        currency: "NGN",
+        reference: order.reference,
+        onSuccess: async () => {
+          try {
+            // 3. The server confirms with Paystack that the money arrived
+            const result = await callFn("verify-payment", { reference: order.reference });
+            if (result.status === "paid") {
+              navigate("/order-success", {
+                replace: true,
+                state: { reference: order.reference, email: order.email, total: order.total },
+              });
+              clear();
+            } else {
+              setError(
+                `We couldn't confirm your payment yet. If you were charged, please contact us with reference ${order.reference}.`
+              );
+              setPaying(false);
+            }
+          } catch (err) {
+            setError(err.message);
+            setPaying(false);
+          }
+        },
+        onCancel: () => setPaying(false),
+      });
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+      setPaying(false);
+    }
   };
 
   const field = (name, label, props = {}) => (
@@ -98,8 +158,11 @@ export default function Checkout() {
             {field("city", "City", { autoComplete: "address-level2" })}
             {field("state", "State", { autoComplete: "address-level1" })}
           </div>
+
+          {error && <p className="err-text auth-msg">{error}</p>}
+
           <button className="add-btn" type="submit" disabled={paying}>
-            {paying ? "Waiting for payment..." : `Pay ${formatNaira(total)}`}
+            {paying ? "Please wait..." : `Pay ${formatNaira(total)}`}
           </button>
         </form>
 

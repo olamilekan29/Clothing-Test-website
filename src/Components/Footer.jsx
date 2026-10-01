@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { CATEGORIES } from "../api";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -29,10 +30,11 @@ export default function Footer() {
           <h4>Shop</h4>
           <ul>
             <li><Link to="/">All products</Link></li>
-            <li><Link to="/?category=mens-shirts">Men's Shirts</Link></li>
-            <li><Link to="/?category=womens-dresses">Dresses</Link></li>
-            <li><Link to="/?category=womens-shoes">Shoes</Link></li>
-            <li><Link to="/?category=womens-bags">Bags</Link></li>
+            {CATEGORIES.map((c) => (
+  <li key={c.slug}>
+    <Link to={`/?category=${c.slug}`}>{c.label}</Link>
+  </li>
+))}
           </ul>
         </div>
 

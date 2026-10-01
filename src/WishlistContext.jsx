@@ -12,6 +12,7 @@ const slim = (p) => ({
   brand: p.brand,
   stock: p.stock,
   category: p.category,
+  sizes: p.sizes,   // ← add this line
 });
 
 export function WishlistProvider({ children }) {

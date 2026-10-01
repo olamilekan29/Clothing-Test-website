@@ -1,13 +1,16 @@
-export const USD_TO_NGN = 1450; // placeholder rate, adjust as needed
-export const SHIPPING_FEE_NGN = 2500;
-export const FREE_SHIPPING_OVER_NGN = 50000;
+import { SOURCE } from "./config";
 
-// Round to the nearest ₦100 so prices look like a real store (₦38,000, not ₦37,987)
-const roundTo100 = (n) => Math.round(n / 100) * 100;
+export const USD_TO_NGN = 1500; // only used by the DummyJSON demo
+export const SHIPPING_FEE_NGN = 3500; // ask the client for their real rates
+export const FREE_SHIPPING_OVER_NGN = 100000;
 
-export const toNaira = (usd) => roundTo100(usd * USD_TO_NGN);
+// Supabase prices are already in naira; DummyJSON prices are converted from USD.
+const IN_NAIRA = SOURCE !== "remote";
+const RATE = IN_NAIRA ? 1 : USD_TO_NGN;
+const STEP = IN_NAIRA ? 1 : 100;
+const roundTo = (n) => Math.round(n / STEP) * STEP;
 
-// Use these everywhere a product price is shown or added to the cart
+export const toNaira = (amount) => roundTo(amount * RATE);
 export const saleNGN = (p) => toNaira(p.price * (1 - p.discountPercentage / 100));
 export const listNGN = (p) => toNaira(p.price);
 
