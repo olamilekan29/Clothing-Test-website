@@ -9,8 +9,7 @@ export default function OrderSuccess() {
     <main className="product success">
       <div className="tick">✓</div>
       <h2>Thank you for your order!</h2>
-      <p>A confirmation will be sent to <strong>{state.email}</strong>.</p>
-      <p className="ref">Reference: {state.reference}</p>
+<p>We've received your order and will contact you about delivery. Your email: <strong>{state.email}</strong>.</p>      <p className="ref">Reference: {state.reference}</p>
       <p>Amount paid: <strong>{formatNaira(state.total)}</strong></p>
       <Link to="/" className="add-btn link-btn">Continue shopping</Link>
     </main>

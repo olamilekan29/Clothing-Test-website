@@ -5,6 +5,7 @@ import ProductForm from "../Components/ProductForm";
 import { removeImages } from "../supabase-store/storage";
 import { CATEGORIES } from "../supabase-store/source";
 import { formatNaira } from "../utils";
+import AdminTabs from "../Components/AdminTabs";
 
 const categoryLabel = (slug) => CATEGORIES.find((c) => c.slug === slug)?.label || slug;
 
@@ -90,6 +91,8 @@ export default function Admin() {
   return (
     <main className="product admin">
       <Link to="/" className="back">← Back to store</Link>
+      <Link to="/" className="back">← Back to store</Link>
+      <AdminTabs />
 
       <div className="admin-head">
         <h2>Products ({products.length})</h2>
